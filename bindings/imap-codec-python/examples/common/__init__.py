@@ -22,7 +22,7 @@ def read_more(buffer: bytearray, role: Role):
 
     # If `read_line` returns `None`, standard input has been closed.
     if line is None or line.strip() == "exit":
-        print("Exiting.")
+        print("Exiting.")  # noqa: T201
         sys.exit(0)
 
     buffer += line.encode()
@@ -37,6 +37,6 @@ def read_line(prompt: str, role: Role) -> Optional[str]:
         # Standard input has been closed.
         return None
     finally:
-        print(RESET, end=None)
+        print(RESET, end=None)  # noqa: T201
 
     return line + "\r\n"
