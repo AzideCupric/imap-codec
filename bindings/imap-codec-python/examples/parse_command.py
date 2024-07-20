@@ -1,4 +1,4 @@
-from common import COLOR_SERVER, RESET, Role, read_more
+from .common import COLOR_SERVER, RESET, Role, read_more
 from imap_codec import CommandCodec, DecodeFailed, DecodeIncomplete, DecodeLiteralFound
 
 WELCOME = r"""# Parsing of IMAP commands

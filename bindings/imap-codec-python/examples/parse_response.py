@@ -1,4 +1,4 @@
-from common import Role, read_more
+from .common import Role, read_more
 from imap_codec import DecodeFailed, DecodeIncomplete, DecodeLiteralFound, ResponseCodec
 
 WELCOME = r"""# Parsing of IMAP responses

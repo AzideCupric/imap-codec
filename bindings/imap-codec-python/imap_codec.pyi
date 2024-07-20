@@ -1,7 +1,3 @@
-from __future__ import annotations
-
-from typing import Tuple, Union
-
 class DecodeError(Exception):
     """
     Error during decoding.
@@ -102,7 +98,7 @@ class Encoded:
     """
 
     def __iter__(self) -> Encoded: ...
-    def __next__(self) -> Union[LineFragment, LiteralFragment]: ...
+    def __next__(self) -> LineFragment | LiteralFragment: ...
     def dump(self) -> bytes:
         """
         Dump the (remaining) encoded data without being guided by fragments.
@@ -114,7 +110,7 @@ class GreetingCodec:
     """
 
     @staticmethod
-    def decode(bytes: bytes) -> Tuple[bytes, dict]:
+    def decode(bytes: bytes) -> tuple[bytes, dict]:
         """
         Decode greeting from given bytes.
 
@@ -139,7 +135,7 @@ class CommandCodec:
     """
 
     @staticmethod
-    def decode(bytes: bytes) -> Tuple[bytes, dict]:
+    def decode(bytes: bytes) -> tuple[bytes, dict]:
         """
         Decode command from given bytes.
 
@@ -165,7 +161,7 @@ class AuthenticateDataCodec:
     """
 
     @staticmethod
-    def decode(bytes: bytes) -> Tuple[bytes, dict]:
+    def decode(bytes: bytes) -> tuple[bytes, dict]:
         """
         Decode authenticate data line from given bytes.
 
@@ -190,7 +186,7 @@ class ResponseCodec:
     """
 
     @staticmethod
-    def decode(bytes: bytes) -> Tuple[bytes, dict]:
+    def decode(bytes: bytes) -> tuple[bytes, dict]:
         """
         Decode response from given bytes.
 
@@ -216,7 +212,7 @@ class IdleDoneCodec:
     """
 
     @staticmethod
-    def decode(bytes: bytes) -> Tuple[bytes, Tuple[()]]:
+    def decode(bytes: bytes) -> tuple[bytes, tuple[()]]:
         """
         Decode idle done from given bytes.
 
@@ -228,7 +224,7 @@ class IdleDoneCodec:
         """
 
     @staticmethod
-    def encode(idle_done: Tuple[()]) -> Encoded:
+    def encode(idle_done: tuple[()]) -> Encoded:
         """
         Encode idle done into fragments.
 

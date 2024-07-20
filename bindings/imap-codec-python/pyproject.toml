@@ -11,5 +11,39 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
+dependencies = [
+    "pydantic>=2.8.2",
+]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[tool.pdm]
+distribution = true
+
+[tool.pyright]
+pythonVersion = "3.8"
+pythonPlatform = "All"
+typeCheckingMode = "standard"
+
+[tool.ruff]
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "W",   # pycodestyle warnings
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "UP",  # pyupgrade
+    "C4",  # flake8-comprehensions
+    "T10", # flake8-debugger
+    "T20", # flake8-print
+    "PYI", # flake8-pyi
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+]
+ignore = [
+    "E402", # module-import-not-at-top-of-file
+    "E501", # line-too-long
+    "PYI021", # docstring-in-stub
+]
