@@ -15,11 +15,22 @@ dependencies = [
     "pydantic>=2.8.2",
 ]
 
+[tool.pdm.scripts]
+dev = "maturin develop"
+mbuild = "maturin build -o dist"
+
 [tool.maturin]
+module-name = "imap_codec._imap_codec"
 features = ["pyo3/extension-module"]
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "maturin>=1.7.0",
+    "pip>=24.1.2", # maturin requires pip, but pdm venv does not install it
+]
 
 [tool.pyright]
 pythonVersion = "3.9"
@@ -31,6 +42,7 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = [
+    "I",   # sort imports
     "W",   # pycodestyle warnings
     "E",   # pycodestyle errors
     "F",   # pyflakes

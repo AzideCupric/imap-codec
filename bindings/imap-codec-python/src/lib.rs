@@ -188,7 +188,7 @@ impl PyIdleDoneCodec {
 }
 
 #[pymodule]
-#[pyo3(name = "imap_codec")]
+#[pyo3(name = "_imap_codec")]
 fn imap_codec_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("DecodeError", m.py().get_type_bound::<DecodeError>())?;
     m.add("DecodeFailed", m.py().get_type_bound::<DecodeFailed>())?;
