@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Literal
+from enum import Enum
+from typing import Literal, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class CodecModel(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+    model_config = ConfigDict(
+        populate_by_name=True, extra="forbid", arbitrary_types_allowed=True
+    )
 
 
 class StrOther(CodecModel):
@@ -22,21 +25,20 @@ class Quoted(CodecModel):
     Quoted: str = Field(..., alias="quoted")
 
 
-Charset = Atom | Quoted
+Charset: TypeAlias = Atom | Quoted
 
 
-CodeLiteral = Literal[
-    "Alert",
-    "Parse",
-    "ReadOnly",
-    "ReadWrite",
-    "TryCreate",
-    "CompressionActive",
-    "OverQuota",
-    "TooBig",
-    "UnknownCte",
-    "UidNotSticky",
-]
+class CodeLiteral(str, Enum):
+    Alert = "Alert"
+    Parse = "Parse"
+    ReadOnly = "ReadOnly"
+    ReadWrite = "ReadWrite"
+    TryCreate = "TryCreate"
+    CompressionActive = "CompressionActive"
+    OverQuota = "OverQuota"
+    TooBig = "TooBig"
+    UnknownCte = "UnknownCte"
+    UidNotSticky = "UidNotSticky"
 
 
 class CodeBadCharset(CodecModel):
@@ -47,74 +49,72 @@ class CodeBadCharset(CodecModel):
 
 
 class CodeCapability(CodecModel):
-    CapabilityLiteral = Literal[
-        "Imap4Rev1",
-        "LoginDisabled",
-        "StartTls",
-        "Idle",
-        "MailboxReferrals",
-        "LoginReferrals",
-        "SaslTr",
-        "Enable",
-        "Quota",
-        "QuotaSet",
-        "LiteralPlus",
-        "LiteralMinus",
-        "Move",
-        "Id",
-        "Unselect",
-        "Metadata",
-        "MetadataServer",
-        "Binary",
-        "UidPlus",
-    ]
+    class CapabilityLiteral(str, Enum):
+        Imap4Rev1 = "Imap4Rev1"
+        LoginDisabled = "LoginDisabled"
+        StartTls = "StartTls"
+        Idle = "Idle"
+        MailboxReferrals = "MailboxReferrals"
+        LoginReferrals = "LoginReferrals"
+        SaslTr = "SaslTr"
+        Enable = "Enable"
+        Quota = "Quota"
+        QuotaSet = "QuotaSet"
+        LiteralPlus = "LiteralPlus"
+        LiteralMinus = "LiteralMinus"
+        Move = "Move"
+        Id = "Id"
+        Unselect = "Unselect"
+        Metadata = "Metadata"
+        MetadataServer = "MetadataServer"
+        Binary = "Binary"
+        UidPlus = "UidPlus"
 
     class CapabilityAuth(CodecModel):
-        AuthMechanism = Literal[
-            "Plain",
-            "Login",
-            "OAuthBearer",
-            "XOAuth2",
-            "ScramSha1",
-            "ScramSha1Plus",
-            "ScramSha256",
-            "ScramSha256Plus",
-            "ScramSha3_512",
-            "ScramSha3_512Plus",
-        ]
+        class AuthMechanism(str, Enum):
+            Plain = "Plain"
+            Login = "Login"
+            OAuthBearer = "OAuthBearer"
+            XOAuth2 = "XOAuth2"
+            ScramSha1 = "ScramSha1"
+            ScramSha1Plus = "ScramSha1Plus"
+            ScramSha256 = "ScramSha256"
+            ScramSha256Plus = "ScramSha256Plus"
+            ScramSha3_512 = "ScramSha3_512"
+            ScramSha3_512Plus = "ScramSha3_512Plus"
 
         Auth: AuthMechanism | StrOther = Field(..., alias="auth")
 
     class CapabilityCompress(CodecModel):
         class Algorithm(CodecModel):
-            CompressionAlgorithm = Literal["Deflate",]
+            class CompressionAlgorithm(str, Enum):
+                Deflate = "Deflate"
 
             algorithm: CompressionAlgorithm
 
     class CapabilityQuatoRes(CodecModel):
-        Resource = Literal[
-            "Storage",
-            "Message",
-            "Mailbox",
-            "AnnotationStorage",
-        ]
+        class Resource(str, Enum):
+            Storage = "Storage"
+            Message = "Message"
+            Mailbox = "Mailbox"
+            AnnotationStorage = "AnnotationStorage"
 
         QuotaRes: Resource | StrOther = Field(..., alias="quota_res")
 
     class CapabilitySort(CodecModel):
-        SortAlgorithm = Literal["Display",]
+        class SortAlgorithm(str, Enum):
+            "Display"
 
         Sort: SortAlgorithm | StrOther | None = Field(..., alias="sort")
 
     class CapabilityThread(CodecModel):
-        ThreadAlgorithm = Literal[
-            "OrderdSubject",
-            "References",
-        ]
+        class ThreadAlgorithm(str, Enum):
+            OrderedSubject = "OrderdSubject"
+            References = "References"
 
         Thread: ThreadAlgorithm | StrOther = Field(..., alias="thread")
 
-    CapabilityItem = (
+    Capability: Sequence[
         CapabilityLiteral
         | CapabilityAuth
         | CapabilityCompress
@@ -122,20 +122,17 @@ class CodeCapability(CodecModel):
         | CapabilitySort
         | CapabilityThread
         | StrOther
-    )
-
-    Capability: Sequence[CapabilityItem] = Field(..., alias="capabilities")
+    ] = Field(..., alias="capabilities")
 
 
 class CodePermanentFlags(CodecModel):
     class Flag(CodecModel):
-        FlagLiteral = Literal[
-            "Answered",
-            "Deleted",
-            "Draft",
-            "Flagged",
-            "Seen",
-        ]
+        class FlagLiteral(str, Enum):
+            Answered = "Answered"
+            Deleted = "Deleted"
+            Draft = "Draft"
+            Flagged = "Flagged"
+            Seen = "Seen"
 
         class FlagKeyword(CodecModel):
             Keyword: str
@@ -147,11 +144,9 @@ class CodePermanentFlags(CodecModel):
             ..., alias="flags"
         )
 
-    Asterisk = Literal["Asterisk"]
-
-    FlagPerm = Flag | Asterisk
-
-    PermanentFlags: Sequence[FlagPerm] = Field(..., alias="permanent_flags")
+    PermanentFlags: Sequence[Flag | Literal["Asterisk"]] = Field(
+        ..., alias="permanent_flags"
+    )
 
 
 class CodeUidNext(CodecModel):
@@ -171,10 +166,9 @@ class CodeReferral(CodecModel):
 
 
 class CodeMetadata(CodecModel):
-    MetadataCodeLiteral = Literal[
-        "TooMany",
-        "NoPrivate",
-    ]
+    class MetadataCodeLiteral(str, Enum):
+        TooMany = "TooMany"
+        NoPrivate = "NoPrivate"
 
     class MetadataCodeLongEntries(CodecModel):
         LongEntries: int = Field(..., alias="long_entries")
@@ -182,9 +176,9 @@ class CodeMetadata(CodecModel):
     class MetadataCodeMaxSize(CodecModel):
         MaxSize: int = Field(..., alias="max_size")
 
-    MetadataCode = MetadataCodeLiteral | MetadataCodeLongEntries | MetadataCodeMaxSize
-
-    Metadata: MetadataCode = Field(..., alias="metadata")
+    Metadata: MetadataCodeLiteral | MetadataCodeLongEntries | MetadataCodeMaxSize = (
+        Field(..., alias="metadata")
+    )
 
 
 class CodeApendUid(CodecModel):
@@ -203,20 +197,16 @@ class CodeCopyUid(CodecModel):
         class Range(CodecModel):
             Range: tuple[int, int]
 
-        UidElement = Single | Range
-
-        UidSet = Sequence[UidElement]
-
         uid_validity: int
-        source: UidSet
-        destination: UidSet
+        source: Sequence[Single | Range]
+        destination: Sequence[Single | Range]
 
 
 class CodeOther(CodecModel):
     Other: tuple[int, ...]
 
 
-Code = (
+Code: TypeAlias = (
     CodeLiteral
     | CodeBadCharset
     | CodeCapability
