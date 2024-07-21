@@ -1,41 +1,34 @@
-import unittest
+import pytest
 
 from imap_codec import DecodeFailed, DecodeIncomplete, GreetingCodec
 
 
-class TestGreetingDecode(unittest.TestCase):
-    def test_greeting(self):
-        buffer = b"* OK Hello, World!\r\n<remaining>"
-        remaining, greeting = GreetingCodec.decode(buffer)
-        self.assertEqual(
-            greeting, {"code": None, "kind": "Ok", "text": "Hello, World!"}
-        )
-        self.assertEqual(remaining, b"<remaining>")
+def test_greeting():
+    buffer = b"* OK Hello, World!\r\n<remaining>"
+    remaining, greeting = GreetingCodec.decode(buffer)
+    assert greeting == {"code": None, "kind": "Ok", "text": "Hello, World!"}
+    assert remaining == b"<remaining>"
 
-    def test_greeting_with_code(self):
-        buffer = b"* OK [ALERT] Hello, World!\r\n<remaining>"
-        remaining, greeting = GreetingCodec.decode(buffer)
-        self.assertEqual(
-            greeting, {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
-        )
-        self.assertEqual(remaining, b"<remaining>")
+def test_greeting_with_code():
+    buffer = b"* OK [ALERT] Hello, World!\r\n<remaining>"
+    remaining, greeting = GreetingCodec.decode(buffer)
+    assert greeting == {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
+    assert remaining == b"<remaining>"
 
-    def test_greeting_without_remaining(self):
-        buffer = b"* OK Hello, World!\r\n"
-        remaining, greeting = GreetingCodec.decode(buffer)
-        self.assertEqual(
-            greeting, {"code": None, "kind": "Ok", "text": "Hello, World!"}
-        )
-        self.assertEqual(remaining, b"")
+def test_greeting_without_remaining():
+    buffer = b"* OK Hello, World!\r\n"
+    remaining, greeting = GreetingCodec.decode(buffer)
+    assert greeting == {"code": None, "kind": "Ok", "text": "Hello, World!"}
+    assert remaining == b""
 
-    def test_greeting_error_incomplete(self):
-        buffer = b"* OK Hello, World!"
-        with self.assertRaises(DecodeIncomplete) as cm:
-            GreetingCodec.decode(buffer)
-        self.assertEqual(str(cm.exception), "")
+def test_greeting_error_incomplete():
+    buffer = b"* OK Hello, World!"
+    with pytest.raises(DecodeIncomplete) as cm:
+        GreetingCodec.decode(buffer)
+    assert not cm.value.args
 
-    def test_greeting_error_failed(self):
-        buffer = b"OK"
-        with self.assertRaises(DecodeFailed) as cm:
-            GreetingCodec.decode(buffer)
-        self.assertEqual(str(cm.exception), "")
+def test_greeting_error_failed():
+    buffer = b"OK"
+    with pytest.raises(DecodeFailed) as cm:
+        GreetingCodec.decode(buffer)
+    assert not cm.value.args

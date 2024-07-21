@@ -1,4 +1,4 @@
-import unittest
+import pytest
 
 from imap_codec import (
     Encoded,
@@ -9,21 +9,24 @@ from imap_codec import (
 )
 
 
-class TestResponseEncode(unittest.TestCase):
-    def test_simple_response(self):
-        response = {"Data": {"Search": [1]}}
-        encoded = ResponseCodec.encode(response)
-        self.assertIsInstance(encoded, Encoded)
-        fragments = list(encoded)
-        self.assertEqual(fragments, [LineFragment(b"* SEARCH 1\r\n")])
+def test_simple_response():
+    response = {"Data": {"Search": [1]}}
+    encoded = ResponseCodec.encode(response)
+    assert isinstance(encoded, Encoded)
+    fragments = list(encoded)
+    assert fragments == [LineFragment(b"* SEARCH 1\r\n")]
 
-    def test_simple_response_dump(self):
-        response = {"Data": {"Search": [1]}}
-        encoded = ResponseCodec.encode(response)
-        self.assertIsInstance(encoded, Encoded)
-        self.assertEqual(encoded.dump(), b"* SEARCH 1\r\n")
 
-    _MULTI_FRAGMENT_RESPONSE = {
+def test_simple_response_dump():
+    response = {"Data": {"Search": [1]}}
+    encoded = ResponseCodec.encode(response)
+    assert isinstance(encoded, Encoded)
+    assert encoded.dump() == b"* SEARCH 1\r\n"
+
+
+@pytest.fixture(scope="module")
+def MULTI_FRAGMENT_RESPONSE():
+    return {
         "Data": {
             "Fetch": {
                 "seq": 12345,
@@ -45,32 +48,26 @@ class TestResponseEncode(unittest.TestCase):
         },
     }
 
-    def test_multi_fragment_response(self):
-        encoded = ResponseCodec.encode(self._MULTI_FRAGMENT_RESPONSE)
-        self.assertIsInstance(encoded, Encoded)
-        fragments = list(encoded)
-        self.assertEqual(
-            fragments,
-            [
-                LineFragment(b"* 12345 FETCH (BODY[] {5+}\r\n"),
-                LiteralFragment(b"ABCDE", LiteralMode.NonSync),
-                LineFragment(b")\r\n"),
-            ],
-        )
 
-    def test_multi_fragment_response_dump(self):
-        encoded = ResponseCodec.encode(self._MULTI_FRAGMENT_RESPONSE)
-        self.assertIsInstance(encoded, Encoded)
-        self.assertEqual(
-            encoded.dump(),
-            b"* 12345 FETCH (BODY[] {5+}\r\nABCDE)\r\n",
-        )
+def test_multi_fragment_response(MULTI_FRAGMENT_RESPONSE):
+    encoded = ResponseCodec.encode(MULTI_FRAGMENT_RESPONSE)
+    assert isinstance(encoded, Encoded)
+    fragments = list(encoded)
+    assert fragments == [
+        LineFragment(b"* 12345 FETCH (BODY[] {5+}\r\n"),
+        LiteralFragment(b"ABCDE", LiteralMode.NonSync),
+        LineFragment(b")\r\n"),
+    ]
 
-    def test_multi_fragment_response_dump_remaining(self):
-        encoded = ResponseCodec.encode(self._MULTI_FRAGMENT_RESPONSE)
-        self.assertIsInstance(encoded, Encoded)
-        self.assertEqual(next(encoded), LineFragment(b"* 12345 FETCH (BODY[] {5+}\r\n"))
-        self.assertEqual(
-            encoded.dump(),
-            b"ABCDE)\r\n",
-        )
+
+def test_multi_fragment_response_dump(MULTI_FRAGMENT_RESPONSE):
+    encoded = ResponseCodec.encode(MULTI_FRAGMENT_RESPONSE)
+    assert isinstance(encoded, Encoded)
+    assert encoded.dump() == b"* 12345 FETCH (BODY[] {5+}\r\nABCDE)\r\n"
+
+
+def test_multi_fragment_response_dump_remaining(MULTI_FRAGMENT_RESPONSE):
+    encoded = ResponseCodec.encode(MULTI_FRAGMENT_RESPONSE)
+    assert isinstance(encoded, Encoded)
+    assert next(encoded) == LineFragment(b"* 12345 FETCH (BODY[] {5+}\r\n")
+    assert encoded.dump() == b"ABCDE)\r\n"
